@@ -38,6 +38,8 @@ int mhd_user_set_from_arg(struct mhd_user *user, char *arg)
 	sscanf(arg, "cfl=%lf", &user->cfl);
     } else if (!strncmp(arg, "eps=", 4)) {
 	sscanf(arg, "eps=%lf", &user->eps);
+    } else if (!strncmp(arg, "nu=", 3)) {
+	sscanf(arg, "nu=%lf", &user->nu);
     } else if (!strncmp(arg, "measure_cadence=", 16)) {
 	sscanf(arg, "measure_cadence=%d", &user->measure_cadence);
     } else if (!strncmp(arg, "analyze_cadence=", 16)) {
@@ -71,6 +73,7 @@ void mhd_user_report(struct mhd_user *user)
     printf("pert .................... %4.3lf\n", user->pert);
     printf("cfl ..................... %4.3lf\n", user->cfl);
     printf("eps ..................... %4.3lf\n", user->eps);
+    printf("nu ...................... %4.3lf\n", user->nu);
     printf("measure_cadence ......... %d\n", user->measure_cadence);
     printf("analyze_cadence ......... %d\n", user->analyze_cadence);
     printf("num_pspec_bin ........... %d\n", user->num_pspec_bin);
@@ -95,7 +98,8 @@ void mhd_user_set_defaults(struct mhd_user *user)
     user->helicity = 1;
     user->pert = 0.0;
     user->cfl = 0.15;
-    user->eps = 0.5;
+    user->eps = 0.0;
+    user->nu = 0.001;
     user->measure_cadence = 1;
     user->analyze_cadence = 128;
     user->num_pspec_bin = 256;
@@ -215,6 +219,7 @@ int mhd_read_write_user(struct mhd_user *user,
     ADD_MEM(pert, H5T_NATIVE_DOUBLE);
     ADD_MEM(cfl, H5T_NATIVE_DOUBLE);
     ADD_MEM(eps, H5T_NATIVE_DOUBLE);
+    ADD_MEM(nu, H5T_NATIVE_DOUBLE);
     ADD_MEM(measure_cadence, H5T_NATIVE_INT);
     ADD_MEM(analyze_cadence, H5T_NATIVE_INT);
     ADD_MEM(num_pspec_bin, H5T_NATIVE_INT);

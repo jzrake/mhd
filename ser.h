@@ -11,6 +11,7 @@ struct mhd_user {
     double pert;
     double cfl;
     double eps;
+    double nu;
     int measure_cadence;
     int analyze_cadence;
     int num_pspec_bin;

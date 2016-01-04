@@ -9,6 +9,17 @@ static void random_beltrami_field(double x[4],
 				  double u[4], int model, int k2, double h, int rank);
 
 
+void mhd_initial_data_kh
+(struct mhd_sim *sim, double x[4], double u[4], double b[4])
+{
+  double p = sim->status.time_simulation > 0.0 ? 0.0 : sim->user.pert;
+  double a = sqrt(sim->user.k2);
+  u[1] = 0.5 * (tanh((x[2]-0.25) * a) - tanh((x[2]-0.75) * a) - 1);
+  u[2] = p * sin(4 * M_PI * x[1]);
+  u[3] = 0.0;
+}
+
+
 void mhd_initial_data_abc
 (struct mhd_sim *sim, double x[4], double u[4], double b[4])
 {

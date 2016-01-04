@@ -6,6 +6,10 @@
 
 
 
+#define DEL2(F,c) ((Ni==1 ? 0.0 : DIFF2C2(F+m+c,si))/(dx*dx) +	\
+		   (Nj==1 ? 0.0 : DIFF2C2(F+m+c,sj))/(dy*dy) +	\
+		   (Nk==1 ? 0.0 : DIFF2C2(F+m+c,sk))/(dz*dz))
+
 
 /*
  * Sim initializer
@@ -76,11 +80,16 @@ int mhd_problem_setup(struct mhd_sim *sim, const char *problem_name)
 {
   if (problem_name == NULL) {
     printf("\nproblems are:\n");
-    printf("1. abc\n");
+    printf("1. kh\n");
+    printf("2. abc\n");
     if (sim) {
       printf("\nuser options are:\n");
       mhd_user_report(&sim->user);
     }
+    return 0;
+  }
+  else if (!strcmp(problem_name, "kh")) {
+    sim->initial_data = mhd_initial_data_kh;
     return 0;
   }
   else if (!strcmp(problem_name, "abc")) {
@@ -140,6 +149,8 @@ void mhd_sim_initial_data(struct mhd_sim *sim)
 
   cow_dfield_syncguard(sim->velocity[0]);
   cow_dfield_syncguard(sim->magnetic[0]);
+  cow_fft_helmholtzdecomp(sim->velocity[0], COW_PROJECT_OUT_DIV);
+  cow_fft_helmholtzdecomp(sim->magnetic[0], COW_PROJECT_OUT_DIV);
 }
 
 
@@ -257,16 +268,20 @@ void mhd_sim_advance_rk(struct mhd_sim *sim, int RKstep)
    * [1] field register
    * ===========================================================================
    */
+
+  double nu = sim->user.nu;
+
   FOR_ALL_INTERIOR(Ni, Nj, Nk) {
     int m = INDV(i,j,k);
 
     double Du1[4] = { 0, D1(u,1), D2(u,1), D3(u,1) };
     double Du2[4] = { 0, D1(u,2), D2(u,2), D3(u,2) };
     double Du3[4] = { 0, D1(u,3), D2(u,3), D3(u,3) };
+    double d2u[4] = { 0, DEL2(u,1), DEL2(u,2), DEL2(u,3) };
 
-    dtu[m+1] = -(u[m+1]*Du1[1] + u[m+2]*Du1[2] + u[m+3]*Du1[3]);
-    dtu[m+2] = -(u[m+1]*Du2[1] + u[m+2]*Du2[2] + u[m+3]*Du2[3]);
-    dtu[m+3] = -(u[m+1]*Du3[1] + u[m+2]*Du3[2] + u[m+3]*Du3[3]);
+    dtu[m+1] = -(u[m+1]*Du1[1] + u[m+2]*Du1[2] + u[m+3]*Du1[3]) + nu*d2u[1];
+    dtu[m+2] = -(u[m+1]*Du2[1] + u[m+2]*Du2[2] + u[m+3]*Du2[3]) + nu*d2u[2];
+    dtu[m+3] = -(u[m+1]*Du3[1] + u[m+2]*Du3[2] + u[m+3]*Du3[3]) + nu*d2u[3];
 
     dtb[m+1] = 0;
     dtb[m+2] = 0;
@@ -350,9 +365,10 @@ void mhd_sim_advance(struct mhd_sim *sim)
   mhd_sim_advance_rk(sim, 2);
   mhd_sim_advance_rk(sim, 3);
   mhd_sim_average_rk(sim);
-  mhd_sim_kreiss_oliger(sim);
-  //cow_fft_helmholtzdecomp(sim->velocity[0], COW_PROJECT_OUT_DIV);
-  //cow_fft_helmholtzdecomp(sim->magnetic[0], COW_PROJECT_OUT_DIV);
+
+  if (sim->user.eps > 0.0) {
+    mhd_sim_kreiss_oliger(sim);
+  }
 
   sim->status.iteration += 1;
   sim->status.time_simulation += sim->status.time_step;

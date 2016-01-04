@@ -248,7 +248,7 @@ void mhd_sim_analyze
   double uwtot = 0.0;
   double abtot = 0.0;
   
-  FOR_ALL_INTERIOR_NO_THREAD(Ni, Nj, Nk) {
+  FOR_ALL_INTERIOR(Ni, Nj, Nk) {
     int m = INDV(i,j,k);
 
     double uu = DOT(&u[m], &u[m]);

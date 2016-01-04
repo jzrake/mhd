@@ -32,6 +32,8 @@ struct mhd_sim {
 
 
 /* ini.c */
+void mhd_initial_data_kh
+(struct mhd_sim *sim, double x[4], double u[4], double b[4]);
 void mhd_initial_data_abc
 (struct mhd_sim *sim, double x[4], double u[4], double b[4]);
 void mhd_initial_data_beltrami
@@ -51,13 +53,6 @@ void mhd_sim_analyze(struct mhd_sim *sim, struct mhd_status *stat, char *filenam
  * =====================================================================
  */
 #define FOR_ALL_INTERIOR(N1, N2, N3)				\
-  _Pragma("omp parallel for collapse(3)")			\
-  for (int i=N1==1?0:MHD_NG; i<N1+(N1==1?0:MHD_NG); ++i)	\
-    for (int j=N2==1?0:MHD_NG; j<N2+(N2==1?0:MHD_NG); ++j)	\
-      for (int k=N3==1?0:MHD_NG; k<N3+(N3==1?0:MHD_NG); ++k)	\
-
-
-#define FOR_ALL_INTERIOR_NO_THREAD(N1, N2, N3)			\
   for (int i=N1==1?0:MHD_NG; i<N1+(N1==1?0:MHD_NG); ++i)	\
     for (int j=N2==1?0:MHD_NG; j<N2+(N2==1?0:MHD_NG); ++j)	\
       for (int k=N3==1?0:MHD_NG; k<N3+(N3==1?0:MHD_NG); ++k)	\
