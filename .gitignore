@@ -3,3 +3,5 @@ cow
 mhd
 *.pyc
 *.o
+*.dat
+*.h5

@@ -44,6 +44,8 @@ int mhd_user_set_from_arg(struct mhd_user *user, char *arg)
 	sscanf(arg, "measure_cadence=%d", &user->measure_cadence);
     } else if (!strncmp(arg, "analyze_cadence=", 16)) {
 	sscanf(arg, "analyze_cadence=%d", &user->analyze_cadence);
+    } else if (!strncmp(arg, "slice_cadence=", 14)) {
+	sscanf(arg, "slice_cadence=%d", &user->slice_cadence);
     } else if (!strncmp(arg, "num_pspec_bin=", 14)) {
 	sscanf(arg, "num_pspec_bin=%d", &user->num_pspec_bin);
     } else if (!strncmp(arg, "max_pspec_bin=", 14)) {
@@ -76,6 +78,7 @@ void mhd_user_report(struct mhd_user *user)
     printf("nu ...................... %4.3lf\n", user->nu);
     printf("measure_cadence ......... %d\n", user->measure_cadence);
     printf("analyze_cadence ......... %d\n", user->analyze_cadence);
+    printf("slice_cadence ........... %d\n", user->slice_cadence);
     printf("num_pspec_bin ........... %d\n", user->num_pspec_bin);
     printf("max_pspec_bin ........... %d\n", user->max_pspec_bin);
     printf("------------------------------------------------\n");
@@ -102,6 +105,7 @@ void mhd_user_set_defaults(struct mhd_user *user)
     user->nu = 0.001;
     user->measure_cadence = 1;
     user->analyze_cadence = 128;
+    user->slice_cadence = 0;
     user->num_pspec_bin = 256;
     user->max_pspec_bin = 1024;
 }
@@ -222,6 +226,7 @@ int mhd_read_write_user(struct mhd_user *user,
     ADD_MEM(nu, H5T_NATIVE_DOUBLE);
     ADD_MEM(measure_cadence, H5T_NATIVE_INT);
     ADD_MEM(analyze_cadence, H5T_NATIVE_INT);
+    ADD_MEM(slice_cadence, H5T_NATIVE_INT);
     ADD_MEM(num_pspec_bin, H5T_NATIVE_INT);
     ADD_MEM(max_pspec_bin, H5T_NATIVE_INT);
 

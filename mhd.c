@@ -415,6 +415,7 @@ int main(int argc, char **argv)
   int restarted_run = 0;
   char logfile_name[1024];
   char anlfile_name[1024];
+  char slcfile_name[1024];
   struct mhd_sim sim;
 
   mhd_user_set_defaults(&sim.user);
@@ -454,26 +455,19 @@ int main(int argc, char **argv)
     }
   }
   else {
-
     mhd_status_set_defaults(&sim.status);
-
-    for (int n=2; n<argc; ++n) {
-      norun_main += mhd_user_set_from_arg(&sim.user, argv[n]);
-    }
-
   }
 
-
-
+  
   /*
-   * Scan command line arguments
+   * Scan command line arguments (override restart user restart)
    * ===================================================================
    */
   for (int n=2; n<argc; ++n) {
-
+    norun_main += mhd_user_set_from_arg(&sim.user, argv[n]);
   }
 
-
+  
   mhd_user_report(&sim.user);
 
 
@@ -512,12 +506,6 @@ int main(int argc, char **argv)
     sim.status.checkpoint_number = -1;
     mhd_sim_initial_data(&sim);
 
-    /* mhd_sim_measure(&sim, &sim.status); */
-    /* mhd_status_fprintf(&sim.status, stdout); */
-    /* cow_fft_helmholtzdecomp(sim.velocity[0], COW_PROJECT_OUT_DIV); */
-    /* mhd_sim_measure(&sim, &sim.status); */
-    /* mhd_status_fprintf(&sim.status, stdout); */
-    /* exit(1);  */
   }
 
 
@@ -527,6 +515,7 @@ int main(int argc, char **argv)
 
   snprintf(logfile_name, 1024, "%s/mhd.dat"    , sim.user.outdir);
   snprintf(anlfile_name, 1024, "%s/analysis.h5", sim.user.outdir);
+  snprintf(slcfile_name, 1024, "%s/slices.h5",   sim.user.outdir);
 
 
   if (cow_domain_getcartrank(sim.domain) == 0) {
@@ -585,7 +574,6 @@ int main(int argc, char **argv)
     }
 
 
-
     /*
      * Handle post-processing and reductions
      * =================================================================
@@ -595,6 +583,14 @@ int main(int argc, char **argv)
     if (iter % sim.user.analyze_cadence == 0) mhd_sim_analyze(&sim, &sim.status,
 							      anlfile_name);
 
+
+    if (sim.user.slice_cadence != 0 &&
+	iter % sim.user.slice_cadence == 0) {
+      char group[256];
+      snprintf(group, 256, "%06d", sim.status.iteration);
+      cow_dfield_write_slice(sim.velocity[0], slcfile_name, group, 1);
+      cow_dfield_write_slice(sim.velocity[0], slcfile_name, group, 2);
+    }
 
     if (cow_domain_getcartrank(sim.domain) == 0) {
       FILE *logf = fopen(logfile_name, "a");

@@ -19,6 +19,7 @@ user_struct = [
     ('nu', 'double', 1e-3),
     ('measure_cadence', 'int', 1),
     ('analyze_cadence', 'int', 128),
+    ('slice_cadence', 'int', 0),
     ('num_pspec_bin', 'int', 256),
     ('max_pspec_bin', 'int', 1024),
 ]
