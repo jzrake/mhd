@@ -37,10 +37,10 @@ default : $(APP)
 
 
 %.c : %.jin.c build.py
-	python build.py $< | gindent -kr > $@ 
+	$(JINJA2) > $@
 
 %.h : %.jin.h build.py
-	python build.py $< | gindent -kr > $@ 
+	$(JINJA2) > $@
 
 %.o : %.c $(HEADERS) $(COW_LIB)
 	$(CC) $(CFLAGS) $< -c $(HDF5_I) $(FFTW_I) $(RNPL_I)
