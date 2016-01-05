@@ -8,6 +8,8 @@ int mhd_user_set_from_arg(struct mhd_user *user, char *arg)
 {
     int error = 0;
     if (0) {
+    } else if (!strncmp(arg, "problem_name=", 13)) {
+	sscanf(arg, "problem_name=%1024s", user->problem_name);
     } else if (!strncmp(arg, "outdir=", 7)) {
 	sscanf(arg, "outdir=%256s", user->outdir);
     } else if (!strncmp(arg, "tmax=", 5)) {
@@ -63,6 +65,7 @@ int mhd_user_set_from_arg(struct mhd_user *user, char *arg)
 void mhd_user_report(struct mhd_user *user)
 {
     printf("------------------------------------------------\n");
+    printf("problem_name ............ %s\n", user->problem_name);
     printf("outdir .................. %s\n", user->outdir);
     printf("tmax .................... %4.3lf\n", user->tmax);
     printf("cpi ..................... %4.3lf\n", user->cpi);
@@ -88,6 +91,7 @@ void mhd_user_report(struct mhd_user *user)
 
 void mhd_user_set_defaults(struct mhd_user *user)
 {
+    strcpy(user->problem_name, "abc");
     strcpy(user->outdir, ".");
     user->tmax = 1.0;
     user->cpi = 1.0;
@@ -204,6 +208,12 @@ int mhd_read_write_user(struct mhd_user *user,
     hid_t h5s = H5Screate(H5S_SCALAR);
     hid_t h5t = H5Tcreate(H5T_COMPOUND, sizeof(struct mhd_user));
 
+    if (1) {
+	hid_t h5t_string = H5Tcopy(H5T_C_S1);
+	H5Tset_size(h5t_string, 1024);
+	ADD_MEM(problem_name, h5t_string);
+	H5Tclose(h5t_string);
+    }
     if (1) {
 	hid_t h5t_string = H5Tcopy(H5T_C_S1);
 	H5Tset_size(h5t_string, 256);

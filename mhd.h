@@ -23,7 +23,6 @@ struct mhd_sim {
   struct mhd_user user;
   struct mhd_status status;
   InitialDataFunc initial_data;
-  char problem_name[1024];
   cow_domain *domain;
   cow_dfield *velocity[6];
   cow_dfield *magnetic[6];

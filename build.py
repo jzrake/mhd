@@ -6,6 +6,7 @@ from jinja2 import Environment, FileSystemLoader
 THIS_DIR = '.'
 
 user_struct = [
+    ('problem_name', 'char[1024]', 'abc'),
     ('outdir', 'char[256]', '.'),
     ('tmax', 'double', 1.0),
     ('cpi', 'double', 1.0),

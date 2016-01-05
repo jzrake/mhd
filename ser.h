@@ -1,6 +1,7 @@
 
 
 struct mhd_user {
+    char problem_name[1024];
     char outdir[256];
     double tmax;
     double cpi;

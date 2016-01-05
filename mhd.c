@@ -435,7 +435,7 @@ int main(int argc, char **argv)
     return 0;
   }
   else {
-    strncpy(sim.problem_name, argv[1], 1024);
+    strncpy(sim.user.problem_name, argv[1], 1024);
   }
 
 
@@ -444,9 +444,8 @@ int main(int argc, char **argv)
    * Set up the problem defaults
    * ===================================================================
    */
-
   if (strstr(argv[1], ".h5") != 0) {
-   
+
     norun_main += mhd_read_write_status(&sim.status, argv[1], 'r');
     norun_main += mhd_read_write_user(&sim.user, argv[1], 'r');
 
@@ -475,9 +474,9 @@ int main(int argc, char **argv)
     cow_finalize();
     return 0;
   }
-  else if (mhd_problem_setup(&sim, sim.problem_name)) {
-    printf("[ffe] error: unkown problem name: '%s', choose one of\n",
-	   sim.problem_name);
+  else if (mhd_problem_setup(&sim, sim.user.problem_name)) {
+    printf("[ffe] error: unknown problem name: '%s'\n",
+	   sim.user.problem_name);
     mhd_problem_setup(NULL, NULL);
     cow_finalize();
     return 0;
