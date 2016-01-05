@@ -58,7 +58,7 @@ void mhd_initial_data_beltrami
   rank += sim->user.N[1] > 1;
   rank += sim->user.N[2] > 1;
 
-  random_beltrami_field(x, b, 0, sim->user.k2, sim->user.helicity, rank);
+  random_beltrami_field(x, u, 0, sim->user.k2, sim->user.helicity, rank);
 }
 
 

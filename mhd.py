@@ -18,7 +18,12 @@ def load_tseries(rundir):
 
 
 def load_user_params(rundir):
-    h5f = h5py.File(os.path.join(rundir, 'chkpt.0000.h5'), 'r')
+    chkpt = os.path.join(rundir, 'chkpt.0000.h5')
+    userf = os.path.join(rundir, 'user.h5')
+    if os.path.isfile(chkpt):
+        h5f = h5py.File(chkpt, 'r')
+    else:
+        h5f = h5py.File(userf, 'r')
     user = dict([(n, h5f['user'][n][0]) for n in h5f['user'].dtype.names])
     h5f.close()
     return user

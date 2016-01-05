@@ -82,6 +82,7 @@ int mhd_problem_setup(struct mhd_sim *sim, const char *problem_name)
     printf("\nproblems are:\n");
     printf("1. kh\n");
     printf("2. abc\n");
+    printf("3. beltrami\n");
     if (sim) {
       printf("\nuser options are:\n");
       mhd_user_report(&sim->user);
@@ -96,6 +97,11 @@ int mhd_problem_setup(struct mhd_sim *sim, const char *problem_name)
     sim->initial_data = mhd_initial_data_abc;
     return 0;
   }
+  else if (!strcmp(problem_name, "beltrami")) {
+    sim->initial_data = mhd_initial_data_beltrami;
+    return 0;
+  }
+
   else {
     return 1;
   }
