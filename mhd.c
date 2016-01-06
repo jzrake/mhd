@@ -1,3 +1,4 @@
+#include <math.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h> /* mkdir */
@@ -157,6 +158,19 @@ void mhd_sim_initial_data(struct mhd_sim *sim)
   cow_dfield_syncguard(sim->magnetic[0]);
   cow_fft_helmholtzdecomp(sim->velocity[0], COW_PROJECT_OUT_DIV);
   cow_fft_helmholtzdecomp(sim->magnetic[0], COW_PROJECT_OUT_DIV);
+
+  if (sim->user.normalize_initial) {
+    mhd_sim_measure(sim, &sim->status);
+
+    double u0 = sqrt(2 * sim->status.velocity_energy);
+
+    FOR_ALL_INTERIOR(Ni, Nj, Nk) {
+      int m = INDV(i,j,k);
+      u[m+1] /= u0;
+      u[m+2] /= u0;
+      u[m+3] /= u0;
+    }
+  }
 }
 
 

@@ -75,6 +75,7 @@ void {{app_name}}_user_report(struct {{app_name}}_user *user)
 
 void {{app_name}}_user_set_defaults(struct {{app_name}}_user *user)
 {
+  memset(user, 0, sizeof(struct {{app_name}}_user));
   {% for m in user_struct %}
   {% if m.dtype == 'char' and not m.array %}
   user->{{m.name}} = '{{m.default_value}}';
@@ -97,6 +98,7 @@ void {{app_name}}_user_set_defaults(struct {{app_name}}_user *user)
 
 void {{app_name}}_status_set_defaults(struct {{app_name}}_status *status)
 {
+  memset(status, 0, sizeof(struct {{app_name}}_status));
   {% for m in status_struct %}
   {% if m.dtype == 'char' and not m.array %}
   status->{{m.name}} = '{{m.default_value}}';

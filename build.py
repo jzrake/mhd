@@ -23,6 +23,8 @@ user_struct = [
     ('slice_cadence', 'int', 0),
     ('num_pspec_bin', 'int', 256),
     ('max_pspec_bin', 'int', 1024),
+    ('calc_initial_diff', 'int', 1),
+    ('normalize_initial', 'int', 0),
 ]
 
 

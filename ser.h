@@ -18,6 +18,8 @@ struct mhd_user {
     int slice_cadence;
     int num_pspec_bin;
     int max_pspec_bin;
+    int calc_initial_diff;
+    int normalize_initial;
 };
 
 

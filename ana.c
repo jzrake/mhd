@@ -129,10 +129,12 @@ void mhd_sim_measure
     		   cow_domain_positionatindex(sim->domain, 1, j),
     		   cow_domain_positionatindex(sim->domain, 2, k)};
 
-    double u0[4];
-    double b0[4];
+    double u0[4] = {0, 0, 0, 0};
+    double b0[4] = {0, 0, 0, 0};
 
-    sim->initial_data(sim, x, u0, b0);
+    if (sim->user.calc_initial_diff) {
+      sim->initial_data(sim, x, u0, b0);
+    }
 
     double du[4] = {0, u[m+1] - u0[1], u[m+2] - u0[2], u[m+3] - u0[3]};
     double db[4] = {0, b[m+1] - b0[1], b[m+2] - b0[2], b[m+3] - b0[3]};
@@ -147,6 +149,7 @@ void mhd_sim_measure
   GLB_AVG(stat->magnetic_monopole);
   GLB_AVG(stat->velocity_L2);
   GLB_AVG(stat->magnetic_L2);
+
 #undef GLB_AVG
 }
 

@@ -52,6 +52,10 @@ int mhd_user_set_from_arg(struct mhd_user *user, char *arg)
 	sscanf(arg, "num_pspec_bin=%d", &user->num_pspec_bin);
     } else if (!strncmp(arg, "max_pspec_bin=", 14)) {
 	sscanf(arg, "max_pspec_bin=%d", &user->max_pspec_bin);
+    } else if (!strncmp(arg, "calc_initial_diff=", 18)) {
+	sscanf(arg, "calc_initial_diff=%d", &user->calc_initial_diff);
+    } else if (!strncmp(arg, "normalize_initial=", 18)) {
+	sscanf(arg, "normalize_initial=%d", &user->normalize_initial);
     } else {
 	printf("[mhd] error: no such option '%s'\n", arg);
 	error = 1;
@@ -84,6 +88,8 @@ void mhd_user_report(struct mhd_user *user)
     printf("slice_cadence ........... %d\n", user->slice_cadence);
     printf("num_pspec_bin ........... %d\n", user->num_pspec_bin);
     printf("max_pspec_bin ........... %d\n", user->max_pspec_bin);
+    printf("calc_initial_diff ....... %d\n", user->calc_initial_diff);
+    printf("normalize_initial ....... %d\n", user->normalize_initial);
     printf("------------------------------------------------\n");
 }
 
@@ -91,6 +97,7 @@ void mhd_user_report(struct mhd_user *user)
 
 void mhd_user_set_defaults(struct mhd_user *user)
 {
+    memset(user, 0, sizeof(struct mhd_user));
     strcpy(user->problem_name, "abc");
     strcpy(user->outdir, ".");
     user->tmax = 1.0;
@@ -112,12 +119,15 @@ void mhd_user_set_defaults(struct mhd_user *user)
     user->slice_cadence = 0;
     user->num_pspec_bin = 256;
     user->max_pspec_bin = 1024;
+    user->calc_initial_diff = 1;
+    user->normalize_initial = 0;
 }
 
 
 
 void mhd_status_set_defaults(struct mhd_status *status)
 {
+    memset(status, 0, sizeof(struct mhd_status));
     status->iteration = 0;
     status->checkpoint_number = 0;
     status->time_simulation = 0.0;
@@ -239,6 +249,8 @@ int mhd_read_write_user(struct mhd_user *user,
     ADD_MEM(slice_cadence, H5T_NATIVE_INT);
     ADD_MEM(num_pspec_bin, H5T_NATIVE_INT);
     ADD_MEM(max_pspec_bin, H5T_NATIVE_INT);
+    ADD_MEM(calc_initial_diff, H5T_NATIVE_INT);
+    ADD_MEM(normalize_initial, H5T_NATIVE_INT);
 
     error = read_write_kernel(h5f, h5s, h5t, mode, "user", user);
     H5Tclose(h5t);
