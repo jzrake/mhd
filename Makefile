@@ -37,10 +37,10 @@ default : $(APP)
 
 
 %.c : %.jin.c build.py
-	$(JINJA2) > $@
+	$(JINJA2)
 
 %.h : %.jin.h build.py
-	$(JINJA2) > $@
+	$(JINJA2)
 
 %.o : %.c $(HEADERS) $(COW_LIB)
 	$(CC) $(CFLAGS) $< -c $(HDF5_I) $(FFTW_I) $(RNPL_I)
