@@ -83,15 +83,17 @@ void random_beltrami_field
 
 
   int k2_sphere = k2;
-  int k_cube = floor(sqrt(k2_sphere)) + 1;
+  int k_cube = floor(sqrt(k2_sphere));
   fourier_mode *modes = NULL;
   int num_modes = 0;
   Complex A[4] = {0, 0, 0, 0};
 
 
-  for (i=1; i<=k_cube; ++i) {
+  for (i=-k_cube*(rank >= 1); i<=k_cube*(rank >= 1); ++i) {
     for (j=-k_cube*(rank >= 2); j<=k_cube*(rank >= 2); ++j) {
       for (k=-k_cube*(rank >= 3); k<=k_cube*(rank >= 3); ++k) {
+
+	//printf("checking [%d %d %d]\n", i, j, k);
 
   	fourier_mode M;
 	double phase = RAND * M_PI;
@@ -101,6 +103,7 @@ void random_beltrami_field
   	  continue;
   	}
   	else {
+	  
   	  //printf("k[%d] = [%d %d %d] is on shell\n", num_modes, i, j, k);
 
   	  M.k[0] = 0.0;
@@ -156,6 +159,8 @@ void random_beltrami_field
 
   free(modes);
 
+  /* printf("re(A) = %+8.6e %+8.6e %+8.6e\n", */
+  /* 	 creal(A[1]), creal(A[2]), creal(A[3])); */
   /* printf("im(A) = %+8.6e %+8.6e %+8.6e\n", */
   /* 	 cimag(A[1]), cimag(A[2]), cimag(A[3])); */
 
@@ -163,5 +168,7 @@ void random_beltrami_field
   B[2] = A[2];
   B[3] = A[3];
 
+  exit(1);
+  
 #undef RAND
 }
