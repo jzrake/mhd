@@ -167,8 +167,6 @@ void random_beltrami_field
   B[1] = A[1];
   B[2] = A[2];
   B[3] = A[3];
-
-  exit(1);
   
 #undef RAND
 }
