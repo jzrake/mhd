@@ -298,16 +298,43 @@ void mhd_sim_advance_rk(struct mhd_sim *sim, int RKstep)
     double Du2[4] = { 0, D1(u,2), D2(u,2), D3(u,2) };
     double Du3[4] = { 0, D1(u,3), D2(u,3), D3(u,3) };
     double d2u[4] = { 0, DEL2(u,1), DEL2(u,2), DEL2(u,3) };
+    double Db1[4] = { 0, D1(b,1), D2(b,1), D3(b,1) };
+    double Db2[4] = { 0, D1(b,2), D2(b,2), D3(b,2) };
+    double Db3[4] = { 0, D1(b,3), D2(b,3), D3(b,3) };
+    double d2b[4] = { 0, DEL2(b,1), DEL2(b,2), DEL2(b,3) };
 
-    dtu[m+1] = -(u[m+1]*Du1[1] + u[m+2]*Du1[2] + u[m+3]*Du1[3]) + nu*d2u[1];
-    dtu[m+2] = -(u[m+1]*Du2[1] + u[m+2]*Du2[2] + u[m+3]*Du2[3]) + nu*d2u[2];
-    dtu[m+3] = -(u[m+1]*Du3[1] + u[m+2]*Du3[2] + u[m+3]*Du3[3]) + nu*d2u[3];
+    double ugradu[4] = {
+      0,
+      u[m+1]*Du1[1] + u[m+2]*Du1[2] + u[m+3]*Du1[3],
+      u[m+1]*Du2[1] + u[m+2]*Du2[2] + u[m+3]*Du2[3],
+      u[m+1]*Du3[1] + u[m+2]*Du3[2] + u[m+3]*Du3[3] };
+    double bgradb[4] = {
+      0,
+      b[m+1]*Db1[1] + b[m+2]*Db1[2] + b[m+3]*Db1[3],
+      b[m+1]*Db2[1] + b[m+2]*Db2[2] + b[m+3]*Db2[3],
+      b[m+1]*Db3[1] + b[m+2]*Db3[2] + b[m+3]*Db3[3] };
+    double ugradb[4] = {
+      0,
+      u[m+1]*Db1[1] + u[m+2]*Db1[2] + u[m+3]*Db1[3],
+      u[m+1]*Db2[1] + u[m+2]*Db2[2] + u[m+3]*Db2[3],
+      u[m+1]*Db3[1] + u[m+2]*Db3[2] + u[m+3]*Db3[3] };
+    double bgradu[4] = {
+      0,
+      b[m+1]*Du1[1] + b[m+2]*Du1[2] + b[m+3]*Du1[3],
+      b[m+1]*Du2[1] + b[m+2]*Du2[2] + b[m+3]*Du2[3],
+      b[m+1]*Du3[1] + b[m+2]*Du3[2] + b[m+3]*Du3[3] };
+    
+    dtu[m+1] = -ugradu[1] + bgradb[1] + nu*d2u[1];
+    dtu[m+2] = -ugradu[2] + bgradb[2] + nu*d2u[2];
+    dtu[m+3] = -ugradu[3] + bgradb[3] + nu*d2u[3];
 
-    dtb[m+1] = 0;
-    dtb[m+2] = 0;
-    dtb[m+3] = 0;
+    dtb[m+1] = bgradu[1] - ugradb[1] + nu*d2b[1];
+    dtb[m+2] = bgradu[2] - ugradb[2] + nu*d2b[2];
+    dtb[m+3] = bgradu[3] - ugradb[3] + nu*d2b[3];
   }
+  
   cow_fft_helmholtzdecomp(sim->velocity[RKstep+2], COW_PROJECT_OUT_DIV);
+  cow_fft_helmholtzdecomp(sim->magnetic[RKstep+2], COW_PROJECT_OUT_DIV);
 }
 
 
@@ -607,8 +634,8 @@ int main(int argc, char **argv)
 	iter % sim.user.slice_cadence == 0) {
       char group[256];
       snprintf(group, 256, "%06d", sim.status.iteration);
-      cow_dfield_write_slice(sim.velocity[0], slcfile_name, group, 1);
       cow_dfield_write_slice(sim.velocity[0], slcfile_name, group, 2);
+      cow_dfield_write_slice(sim.magnetic[0], slcfile_name, group, 2);
     }
 
     if (cow_domain_getcartrank(sim.domain) == 0) {

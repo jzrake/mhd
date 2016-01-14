@@ -28,21 +28,21 @@ void mhd_initial_data_abc
   double a3 = sim->user.abc[2];
   double alpha = sqrt(sim->user.k2) * 2 * M_PI;
   
-  u[1] = 0.0;
-  u[2] = 0.0;
-  u[3] = 0.0;
+  b[1] = 0.0;
+  b[2] = 0.0;
+  b[3] = 0.0;
 
-  u[2] += a1 * cos(alpha * x[1]);
-  u[3] -= a1 * sin(alpha * x[1]);
-  u[1] += 0.0;
+  b[2] += a1 * cos(alpha * x[1]);
+  b[3] -= a1 * sin(alpha * x[1]);
+  b[1] += 0.0;
 
-  u[3] += a2 * cos(alpha * x[2]);
-  u[1] -= a2 * sin(alpha * x[2]);
-  u[2] += 0.0;
+  b[3] += a2 * cos(alpha * x[2]);
+  b[1] -= a2 * sin(alpha * x[2]);
+  b[2] += 0.0;
 
-  u[1] += a3 * cos(alpha * x[3]);
-  u[2] -= a3 * sin(alpha * x[3]);
-  u[3] += 0.0;
+  b[1] += a3 * cos(alpha * x[3]);
+  b[2] -= a3 * sin(alpha * x[3]);
+  b[3] += 0.0;
 }
 
 
