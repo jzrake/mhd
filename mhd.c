@@ -163,12 +163,20 @@ void mhd_sim_initial_data(struct mhd_sim *sim)
     mhd_sim_measure(sim, &sim->status);
 
     double u0 = sqrt(2 * sim->status.velocity_energy);
+    double b0 = sqrt(2 * sim->status.magnetic_energy);
 
     FOR_ALL_INTERIOR(Ni, Nj, Nk) {
       int m = INDV(i,j,k);
-      u[m+1] /= u0;
-      u[m+2] /= u0;
-      u[m+3] /= u0;
+      if (u0 > 0.0) {
+	u[m+1] /= u0;
+	u[m+2] /= u0;
+	u[m+3] /= u0;
+      }
+      if (b0 > 0.0) {
+	b[m+1] /= b0;
+	b[m+2] /= b0;
+	b[m+3] /= b0;
+      }
     }
   }
 }
