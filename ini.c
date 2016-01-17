@@ -1,12 +1,12 @@
 #include <math.h>
 #include <stdlib.h>
-#include <complex.h>
 #include "mhd.h"
 #include "jsw_rand.h"
 
 
-static void random_beltrami_field(double x[4],
-				  double u[4], int model, int k2, double h, int rank);
+static void evaluate_beltrami_field(struct fourier_mode *modes, int num_modes,
+				    double x[4],
+				    double u[4], int k2, double h, int rank);
 
 
 void mhd_initial_data_kh
@@ -62,44 +62,41 @@ void mhd_initial_data_beltrami
   rank += sim->user.N[1] > 1;
   rank += sim->user.N[2] > 1;
 
-  random_beltrami_field(x, b, 0, sim->user.k2, sim->user.helicity, rank);
+  evaluate_beltrami_field(sim->beltrami_modes, sim->num_beltrami_modes,
+			  x, b, sim->user.k2, sim->user.helicity, rank);
 }
 
 
 
-typedef complex double Complex;
-typedef struct fourier_mode
-{
-  double k[4];
-  Complex A[4];
-} fourier_mode;
-
-
-
-
-void random_beltrami_field
-(double x[4], double B[4], int model, int k2, double h, int rank)
+void mhd_sim_init_beltrami(struct mhd_sim *sim)
 {
 #define RAND jsw_random_double(&rand, -1, 1)
-  int m,d,i,j,k;
+
+  int rank = 0;
+  rank += sim->user.N[0] > 1;
+  rank += sim->user.N[1] > 1;
+  rank += sim->user.N[2] > 1;
+
+
+  int d,i,j,k;
+  int model = 0;
   jsw_rand_t rand;
   jsw_seed(&rand, model);
 
 
-  int k2_sphere = k2;
+  int k2_sphere = sim->user.k2;
   int k_cube = floor(sqrt(k2_sphere));
-  fourier_mode *modes = NULL;
-  int num_modes = 0;
-  Complex A[4] = {0, 0, 0, 0};
+  sim->beltrami_modes = NULL;
+  sim->num_beltrami_modes = 0;
 
-
+  
   for (i=-k_cube*(rank >= 1); i<=k_cube*(rank >= 1); ++i) {
     for (j=-k_cube*(rank >= 2); j<=k_cube*(rank >= 2); ++j) {
       for (k=-k_cube*(rank >= 3); k<=k_cube*(rank >= 3); ++k) {
 
 	//printf("checking [%d %d %d]\n", i, j, k);
 
-  	fourier_mode M;
+  	struct fourier_mode M;
 	double phase = RAND * M_PI;
 
 
@@ -108,7 +105,8 @@ void random_beltrami_field
   	}
   	else {
 	  
-  	  //printf("k[%d] = [%d %d %d] is on shell\n", num_modes, i, j, k);
+  	  /* printf("k[%d] = [%d %d %d] is on shell\n", */
+	  /* 	 sim->num_beltrami_modes/2, i, j, k); */
 
   	  M.k[0] = 0.0;
   	  M.k[1] = i;
@@ -129,9 +127,11 @@ void random_beltrami_field
 	    M.A[d] = e1[d] * cexp(I * phase);
 	  }
 
-  	  num_modes += 1;
-  	  modes = (fourier_mode *) realloc(modes, num_modes * sizeof(fourier_mode));
-  	  modes[num_modes-1] = M;
+  	  sim->num_beltrami_modes += 1;
+  	  sim->beltrami_modes = (struct fourier_mode *)
+	    realloc(sim->beltrami_modes,
+		    sim->num_beltrami_modes * sizeof(struct fourier_mode));
+  	  sim->beltrami_modes[sim->num_beltrami_modes-1] = M;
 
 
 	  /* reality condition */
@@ -139,17 +139,37 @@ void random_beltrami_field
 	    M.k[d] = -M.k[d];
 	    M.A[d] = conj(M.A[d]);
 	  }
-  	  num_modes += 1;
-  	  modes = (fourier_mode *) realloc(modes, num_modes * sizeof(fourier_mode));
-  	  modes[num_modes-1] = M;
+  	  sim->num_beltrami_modes += 1;
+  	  sim->beltrami_modes = (struct fourier_mode *)
+	    realloc(sim->beltrami_modes,
+		    sim->num_beltrami_modes * sizeof(struct fourier_mode));
+  	  sim->beltrami_modes[sim->num_beltrami_modes-1] = M;
 	}
       }
     }
   }
+#undef RAND
+}
+
+
+void mhd_sim_free_beltrami(struct mhd_sim *sim)
+{
+  free(sim->beltrami_modes);
+  sim->num_beltrami_modes = 0;
+}
+
+
+
+void evaluate_beltrami_field
+(struct fourier_mode *modes, int num_modes,
+ double x[4], double B[4], int k2, double h, int rank)
+{
+  int m;
+  Complex A[4] = {0, 0, 0, 0};
 
   for (m=0; m<num_modes; ++m) {
+    struct fourier_mode M = modes[m];
     double a = sqrt(k2);
-    fourier_mode M = modes[m];
     Complex K[4] = {0, I*M.k[1], I*M.k[2], I*M.k[3]};
     Complex Ikx  = (K[1]*x[1] + K[2]*x[2] + K[3]*x[3]) * 2 * M_PI;
     Complex P[4] = {0, M.A[1], M.A[2], M.A[3]}; /* a times psi */
@@ -161,8 +181,6 @@ void random_beltrami_field
   }
 
 
-  free(modes);
-
   /* printf("re(A) = %+8.6e %+8.6e %+8.6e\n", */
   /* 	 creal(A[1]), creal(A[2]), creal(A[3])); */
   /* printf("im(A) = %+8.6e %+8.6e %+8.6e\n", */
@@ -171,6 +189,4 @@ void random_beltrami_field
   B[1] = A[1];
   B[2] = A[2];
   B[3] = A[3];
-  
-#undef RAND
 }

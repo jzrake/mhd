@@ -10,6 +10,7 @@
 #define MHD_DISSIPATION_ORDER 6
 
 #include <stdio.h> /* FILE */
+#include <complex.h>
 #include "cow/cow.h"
 #include "ser.h"
 
@@ -19,9 +20,20 @@ typedef void (*InitialDataFunc)
 (struct mhd_sim *sim, double x[4], double u[4], double b[4]);
 
 
+
+typedef complex double Complex;
+
+struct fourier_mode
+{
+  double k[4];
+  Complex A[4];
+} fourier_mode;
+
 struct mhd_sim {
   struct mhd_user user;
   struct mhd_status status;
+  struct fourier_mode *beltrami_modes;
+  int num_beltrami_modes;
   InitialDataFunc initial_data;
   cow_domain *domain;
   cow_dfield *velocity[6];
@@ -45,6 +57,8 @@ int mhd_status_fprintf(struct mhd_status *stat, FILE *F);
 void mhd_truncate_logfile(double t, const char *fname);
 void mhd_sim_measure(struct mhd_sim *sim, struct mhd_status *stat);
 void mhd_sim_analyze(struct mhd_sim *sim, struct mhd_status *stat, char *filename);
+void mhd_sim_init_beltrami(struct mhd_sim *sim);
+void mhd_sim_free_beltrami(struct mhd_sim *sim);
 
 
 /*

@@ -54,6 +54,8 @@ void mhd_sim_init(struct mhd_sim *sim)
     cow_dfield_commit(sim->velocity[n]);
     cow_dfield_commit(sim->magnetic[n]);
   }
+
+  mhd_sim_init_beltrami(sim);
 }
 
 
@@ -69,6 +71,7 @@ void mhd_sim_free(struct mhd_sim *sim)
     cow_dfield_del(sim->magnetic[n]);
   }
   cow_domain_del(sim->domain);
+  mhd_sim_free_beltrami(sim);
 }
 
 
